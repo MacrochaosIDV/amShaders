@@ -6,7 +6,6 @@
 ************************
 */
 float4x4 matViewProjection;
-//float4x4 matViewProjectionInverse;
 float4x4 matWorld;
 
 float fFarClipPlane;
@@ -34,32 +33,20 @@ VS_OUTPUT VS( VS_INPUT Input )
 {
    VS_OUTPUT Output = (VS_OUTPUT)0;
    
-   //float angle = fTime0_2PI * 5;
-   
-   //float4x4 matRot = { cos(angle),  0, sin(angle), 0,
-   //                    0,           1, 0,          0,
-   //                    -sin(angle), 0, cos(angle), 0,
-   //                    0,           0, 0,          1};
-                       
-   //float4x4 matTransform = mul(matWorld, matRot);
-   //matTrans = mul(matTrans, matView);
-
-   //float4 tmpPosW = mul(Input.Position, matTransform);
-   //Output.WorldPos = tmpPosW.xyz;
-   //Output.Position = mul( tmpPosW, matViewProjection );
-   //Output.TexCoord = float2(Input.TexCoord.x, 1.0f - Input.TexCoord.y);
-
-
    Output.Position = mul(float4(Input.Position.xyz, 1.0f), matWorld);
    Output.WorldPos = Output.Position.xyz;
    Output.Position = mul(Output.Position, matViewProjection);
    Output.TexCoord = Input.TexCoord;
    Output.TBN = float3x3(Input.Tangent, Input.Binormal, Input.Normal);
-   Output.TBN = mul(Output.TBN, (float3x3)matWorld);
-   //Output.Depth = (1.f - (Output.Position.z - fNearClipPlane) / (fFarClipPlane - fNearClipPlane));
-   //Output.Depth = (1.f - ((Output.Position.z - fNearClipPlane) / (fFarClipPlane - fNearClipPlane)) * 2);
-   Output.Depth = 1.0f - (Output.Position.z - fNearClipPlane) / (fFarClipPlane - fNearClipPlane);
-   //Output.Depth = Output.Position.z;
+
+   //Output.TBN[0] = mul(float4(Input.Tangent, 0.0f), matViewProjection);
+   //Output.TBN[1] = mul(float4(Input.Binormal, 0.0f), matViewProjection);
+   //Output.TBN[2] = mul(float4(Input.Normal, 0.0f), matWorld);
+   //Output.TBN[2] = mul(float4(Input.Normal, 0.0f), matViewProjection);
+   //Output.TBN = mul(Output.TBN, (float3x3)matWorld);
+   Output.TBN = mul(Output.TBN, (float3x3)matViewProjection);
+
+   Output.Depth = (((Output.Position.z - fNearClipPlane) / (fFarClipPlane - fNearClipPlane)) - 0.5f) * 2.0f;
 
    return(Output);
 }

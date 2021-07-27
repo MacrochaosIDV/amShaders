@@ -26,9 +26,9 @@ struct PS_INPUT
 struct PS_OUPUT 
 {
    float4 Position : COLOR0;
-   float4 NormalDepth   : COLOR1;
+   float4 Normal   : COLOR1;
    float4 Color    : COLOR2;
-   float Depth    : COLOR3;
+   float4 Depth    : COLOR3;
 };
 
 
@@ -65,13 +65,13 @@ PS_OUPUT ps_main(PS_INPUT Input)
    float3 RefV = normalize(reflect(-DirView, normal));
    float4 RefColor = texCUBE(Texture3, RefV);
    
-   //Position and Depth
-   float invDepth = 1.0f - Input.Depth;
+   //return RefColor;
+   
    Output.Position = float4(Input.WorldPos, 1.0f);
-   //Output.NormalDepth = float4(normal, 1.0f);
-   Output.NormalDepth = float4(normal, Input.Depth);
+   Output.Normal = float4(normal, 1.0f);
    Output.Color = Diffusecolor;
    Output.Depth = Input.Depth;
+   //Output.Position = float4(Input.WorldPos, 1.0f);
    
    return Output;
    

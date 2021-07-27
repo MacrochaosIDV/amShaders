@@ -48,7 +48,6 @@ struct PS_OUTPUT
    float4 Color : COLOR0;
    float4 NormalDepth : COLOR1;
    float4 Emissive : COLOR2;
-   float4 Depth : COLOR3;
    //TODO: add metal, ao, rough & depth
 };
 
@@ -84,7 +83,7 @@ PS_OUTPUT PS(PS_INPUT Input) {
     float D = ndfGGX(NdH, roughness);
 
     float3 kd = lerp(1.0f - F, 0.0f, metalness);
-    float3 diffuseBRDF = kd * albedo.xyz;
+    float3 diffuseBRDF = kd * albedo;
     float3 specularBRDF = (F * D * G) / max(Epsilon, 4.0f * NdL * NdV);
 
     float3 directLighting = (pow(diffuseBRDF, 2.2f) + pow(specularBRDF, 2.2f));
@@ -96,7 +95,7 @@ PS_OUTPUT PS(PS_INPUT Input) {
         float3 F2 = fresnelSchlick(F0, NdV);
         float kd2 = lerp(1.0f - F2, 0.0f, metalness);
 
-        float3 diffuseIBL = kd2 * albedo.xyz * irradiance;
+        float3 diffuseIBL = kd2 * albedo * irradiance;
 
         uint specularTextureLevels = 9;
         float3 Lr = 2.0f * NdV * normal - viewDir;
@@ -117,9 +116,6 @@ PS_OUTPUT PS(PS_INPUT Input) {
         pow(directLighting, 2.2f) + pow(ambienLighting,2.2f), 1.0f/2.2f), albedo.w);
     Output.NormalDepth = float4(normal, Input.Depth);
     Output.Emissive = float4(pow(emissive, 2.2f), 1.0f);
-    Output.Depth.xyz =  Output.NormalDepth.w;
-    Output.Depth.w = 1;
-    
     return Output;
 
 
